@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>나의 독서기록</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <nav class="navbar" aria-label="주요 메뉴">
+      <a class="brand" href="#overview" aria-label="나의 독서기록 처음으로 이동">
+        <span class="brand-mark">R</span>
+        <span>Reading Log</span>
+      </a>
+
+      <button class="menu-toggle" id="menuToggle" type="button" aria-label="메뉴 열기" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#record">기록하기</a></li>
+        <li><a href="#library">책장</a></li>
+        <li><a href="#goals">목표</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section class="reader-hero" id="overview" aria-label="독서기록 요약">
+      <div class="hero-content">
+        <p class="eyebrow">Personal Reading Journal</p>
+        <h1 id="heroTitle">나의 독서기록</h1>
+        <p class="hero-copy">
+          읽고 있는 책, 완독한 책, 다음에 읽을 책을 한 곳에 모아 나만의 독서 흐름을 기록합니다.
+        </p>
+      </div>
+
+      <dl class="hero-stats" aria-label="현재 독서 통계">
+        <div>
+          <dt>전체 기록</dt>
+          <dd id="totalBooks">0권</dd>
+        </div>
+        <div>
+          <dt>완독</dt>
+          <dd id="finishedBooks">0권</dd>
+        </div>
+        <div>
+          <dt>이번 달 목표</dt>
+          <dd id="monthGoalText">0 / 0권</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="dashboard" aria-label="독서 기록 관리">
+      <aside class="entry-panel" id="record">
+        <div class="section-heading">
+          <p class="eyebrow">New Record</p>
+          <h2>책 기록하기</h2>
+        </div>
+
+        <form class="book-form" id="bookForm">
+          <label for="bookTitle">책 제목</label>
+          <input id="bookTitle" name="title" type="text" placeholder="예: 데미안" required>
+
+          <label for="bookAuthor">저자</label>
+          <input id="bookAuthor" name="author" type="text" placeholder="예: 헤르만 헤세" required>
+
+          <div class="form-row">
+            <div>
+              <label for="bookStatus">상태</label>
+              <select id="bookStatus" name="status">
+                <option value="reading">읽는 중</option>
+                <option value="finished">완독</option>
+                <option value="wishlist">읽고 싶음</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="bookRating">평점</label>
+              <select id="bookRating" name="rating">
+                <option value="0">미정</option>
+                <option value="5">5점</option>
+                <option value="4">4점</option>
+                <option value="3">3점</option>
+                <option value="2">2점</option>
+                <option value="1">1점</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div>
+              <label for="bookPages">페이지</label>
+              <input id="bookPages" name="pages" type="number" min="1" max="3000" placeholder="320">
+            </div>
+
+            <div>
+              <label for="finishedDate">완독일</label>
+              <input id="finishedDate" name="finishedDate" type="date">
+            </div>
+          </div>
+
+          <label for="bookMemo">메모</label>
+          <textarea id="bookMemo" name="memo" rows="4" placeholder="기억하고 싶은 문장, 느낀 점, 다음에 확인할 내용"></textarea>
+
+          <button class="primary-btn" type="submit">
+            <span aria-hidden="true">+</span>
+            기록 추가
+          </button>
+        </form>
+      </aside>
+
+      <section class="library-panel" id="library">
+        <div class="library-top">
+          <div class="section-heading">
+            <p class="eyebrow">My Shelf</p>
+            <h2>내 책장</h2>
+          </div>
+
+          <div class="library-tools" aria-label="책장 도구">
+            <label class="search-field" for="searchInput">
+              <span>검색</span>
+              <input id="searchInput" type="search" placeholder="제목 또는 저자">
+            </label>
+
+            <label class="sort-field" for="sortSelect">
+              <span>정렬</span>
+              <select id="sortSelect">
+                <option value="recent">최근 기록순</option>
+                <option value="rating">평점 높은순</option>
+                <option value="title">제목순</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div class="status-tabs" role="tablist" aria-label="상태별 보기">
+          <button class="tab-btn active" type="button" data-filter="all">전체</button>
+          <button class="tab-btn" type="button" data-filter="reading">읽는 중</button>
+          <button class="tab-btn" type="button" data-filter="finished">완독</button>
+          <button class="tab-btn" type="button" data-filter="wishlist">읽고 싶음</button>
+        </div>
+
+        <div class="book-list" id="bookList" aria-live="polite"></div>
+      </section>
+    </section>
+
+    <section class="insights" id="goals" aria-label="독서 목표와 메모">
+      <article class="goal-panel">
+        <div class="section-heading">
+          <p class="eyebrow">Monthly Goal</p>
+          <h2>이번 달 독서 목표</h2>
+        </div>
+
+        <label for="ownerName">기록 이름</label>
+        <input id="ownerName" type="text" maxlength="20" placeholder="예: 민지의 독서노트">
+
+        <label for="goalInput">월간 완독 목표</label>
+        <div class="goal-input-row">
+          <input id="goalInput" type="number" min="1" max="30">
+          <button class="ghost-btn" id="saveGoalBtn" type="button">저장</button>
+        </div>
+
+        <div class="goal-meter" aria-label="월간 목표 달성률">
+          <span id="goalBar"></span>
+        </div>
+        <p class="goal-copy" id="goalCopy">이번 달 목표를 설정해 보세요.</p>
+      </article>
+
+      <article class="note-panel">
+        <div class="section-heading">
+          <p class="eyebrow">Snapshot</p>
+          <h2>독서 현황</h2>
+        </div>
+
+        <ul class="summary-list">
+          <li>
+            <span>읽는 중</span>
+            <strong id="readingBooks">0권</strong>
+          </li>
+          <li>
+            <span>읽고 싶음</span>
+            <strong id="wishlistBooks">0권</strong>
+          </li>
+          <li>
+            <span>기록한 페이지</span>
+            <strong id="totalPages">0쪽</strong>
+          </li>
+          <li>
+            <span>평균 평점</span>
+            <strong id="averageRating">0.0점</strong>
+          </li>
+        </ul>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>2026 나의 독서기록 웹페이지</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
