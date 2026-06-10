@@ -1,7 +1,8 @@
 const storageKeys = {
   books: "reading-log-books",
   goal: "reading-log-goal",
-  owner: "reading-log-owner"
+  owner: "reading-log-owner",
+  routine: "reading-log-routine"
 };
 
 const statusLabels = {
@@ -9,6 +10,14 @@ const statusLabels = {
   finished: "완독",
   wishlist: "읽고 싶음"
 };
+
+const readingQuotes = [
+  "한 페이지씩 읽으면 오늘의 생각도 조금씩 정리된다.",
+  "좋은 문장은 다시 읽을 때 더 오래 남는다.",
+  "책을 읽는 시간은 나의 속도를 되찾는 시간이다.",
+  "메모가 쌓이면 독서가 나만의 기록이 된다.",
+  "완독보다 중요한 것은 읽으며 무엇을 발견했는지이다."
+];
 
 const seedBooks = [
   {
@@ -66,7 +75,23 @@ const refs = {
   goalInput: document.querySelector("#goalInput"),
   saveGoalBtn: document.querySelector("#saveGoalBtn"),
   goalBar: document.querySelector("#goalBar"),
-  goalCopy: document.querySelector("#goalCopy")
+  goalCopy: document.querySelector("#goalCopy"),
+  liveClock: document.querySelector("#liveClock"),
+  todayLabel: document.querySelector("#todayLabel"),
+  quoteBox: document.querySelector("#quoteBox"),
+  randomQuoteBtn: document.querySelector("#randomQuoteBtn"),
+  pagePlanForm: document.querySelector("#pagePlanForm"),
+  planPages: document.querySelector("#planPages"),
+  planPace: document.querySelector("#planPace"),
+  planResult: document.querySelector("#planResult"),
+  routineChecks: document.querySelectorAll("#routineList input[type='checkbox']"),
+  routineResult: document.querySelector("#routineResult"),
+  routineResetBtn: document.querySelector("#routineResetBtn"),
+  statusCanvas: document.querySelector("#statusCanvas"),
+  sampleTableBody: document.querySelector("#sampleTableBody"),
+  openTipDialog: document.querySelector("#openTipDialog"),
+  closeTipDialog: document.querySelector("#closeTipDialog"),
+  tipDialog: document.querySelector("#tipDialog")
 };
 
 let books = loadBooks();
@@ -77,7 +102,10 @@ let ownerName = localStorage.getItem(storageKeys.owner) || "";
 refs.goalInput.value = monthlyGoal;
 refs.ownerName.value = ownerName;
 
+loadRoutineState();
 render();
+updateClock();
+setInterval(updateClock, 1000);
 
 refs.menuToggle.addEventListener("click", () => {
   const isOpen = refs.navLinks.classList.toggle("show");
@@ -119,6 +147,7 @@ refs.form.addEventListener("submit", (event) => {
   refs.form.reset();
   document.querySelector("#bookStatus").value = "reading";
   document.querySelector("#bookRating").value = "0";
+  alert("새 독서기록이 추가되었습니다.");
   render();
 });
 
@@ -158,7 +187,15 @@ refs.bookList.addEventListener("click", (event) => {
   }
 
   if (action === "delete") {
+    const targetBook = books.find((book) => book.id === id);
+    const ok = confirm(`"${targetBook ? targetBook.title : "선택한 기록"}"을 삭제할까요?`);
+
+    if (!ok) {
+      return;
+    }
+
     books = books.filter((book) => book.id !== id);
+    alert("기록이 삭제되었습니다.");
   }
 
   saveBooks();
@@ -179,6 +216,58 @@ refs.ownerName.addEventListener("change", () => {
   localStorage.setItem(storageKeys.owner, ownerName);
   renderTitle();
 });
+
+refs.randomQuoteBtn.addEventListener("click", () => {
+  const index = Math.floor(Math.random() * readingQuotes.length);
+  refs.quoteBox.textContent = readingQuotes[index];
+});
+
+refs.pagePlanForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+
+  const pages = Number(refs.planPages.value);
+  const pace = Number(refs.planPace.value);
+
+  if (!pages || !pace) {
+    refs.planResult.textContent = "두 값을 모두 1 이상으로 입력하세요.";
+    return;
+  }
+
+  const days = Math.ceil(pages / pace);
+  const finishDate = new Date();
+  finishDate.setDate(finishDate.getDate() + days);
+  refs.planResult.textContent = `${days}일 뒤, ${formatDate(finishDate.toISOString())}에 완독할 수 있습니다.`;
+});
+
+refs.routineChecks.forEach((checkbox, index) => {
+  checkbox.dataset.index = String(index);
+  checkbox.addEventListener("change", () => {
+    saveRoutineState();
+    renderRoutineMinutes();
+  });
+});
+
+refs.routineResetBtn.addEventListener("click", () => {
+  refs.routineChecks.forEach((checkbox) => {
+    checkbox.checked = false;
+  });
+  saveRoutineState();
+  renderRoutineMinutes();
+});
+
+refs.openTipDialog.addEventListener("click", () => {
+  if (typeof refs.tipDialog.showModal === "function") {
+    refs.tipDialog.showModal();
+  } else {
+    alert("완독한 날짜와 한 줄 메모를 같이 남기면 나중에 책을 다시 찾기 쉽습니다.");
+  }
+});
+
+refs.closeTipDialog.addEventListener("click", () => {
+  refs.tipDialog.close();
+});
+
+window.addEventListener("resize", drawStatusChart);
 
 function loadBooks() {
   const saved = localStorage.getItem(storageKeys.books);
@@ -203,6 +292,9 @@ function render() {
   renderTitle();
   renderStats();
   renderBookList();
+  renderRecentTable();
+  drawStatusChart();
+  renderRoutineMinutes();
 }
 
 function renderTitle() {
@@ -281,6 +373,99 @@ function createBookCard(book) {
       </div>
     </article>
   `;
+}
+
+function renderRecentTable() {
+  const rows = books.slice(0, 5).map((book, index) => {
+    const rating = Number(book.rating) > 0 ? `${book.rating}점` : "미정";
+
+    return `
+      <tr>
+        <td>${index + 1}</td>
+        <td>${escapeHtml(book.title)}</td>
+        <td>${escapeHtml(book.author)}</td>
+        <td>${statusLabels[book.status]}</td>
+        <td>${rating}</td>
+      </tr>
+    `;
+  });
+
+  refs.sampleTableBody.innerHTML = rows.join("");
+}
+
+function drawStatusChart() {
+  const canvas = refs.statusCanvas;
+  const context = canvas.getContext("2d");
+  const data = [
+    { label: "읽는 중", value: books.filter((book) => book.status === "reading").length, color: "#2f6f5e" },
+    { label: "완독", value: books.filter((book) => book.status === "finished").length, color: "#d8644a" },
+    { label: "읽고 싶음", value: books.filter((book) => book.status === "wishlist").length, color: "#2d5574" }
+  ];
+  const maxValue = Math.max(...data.map((item) => item.value), 1);
+
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.fillStyle = "#fffdf8";
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  context.strokeStyle = "#ddd6c9";
+  context.lineWidth = 2;
+  context.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
+
+  data.forEach((item, index) => {
+    const barHeight = 32;
+    const x = 118;
+    const y = 48 + index * 58;
+    const barWidth = Math.round((canvas.width - 170) * (item.value / maxValue));
+
+    context.fillStyle = "#1f2a2e";
+    context.font = "16px Arial";
+    context.fillText(item.label, 24, y + 22);
+
+    context.fillStyle = "#ece4d7";
+    context.fillRect(x, y, canvas.width - 160, barHeight);
+
+    context.fillStyle = item.color;
+    context.fillRect(x, y, barWidth, barHeight);
+
+    context.fillStyle = "#1f2a2e";
+    context.font = "bold 15px Arial";
+    context.fillText(`${item.value}권`, x + barWidth + 10, y + 22);
+  });
+}
+
+function updateClock() {
+  const now = new Date();
+
+  refs.liveClock.textContent = now.toLocaleTimeString("ko-KR");
+  refs.todayLabel.textContent = now.toLocaleDateString("ko-KR", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    weekday: "long"
+  });
+}
+
+function loadRoutineState() {
+  const saved = JSON.parse(localStorage.getItem(storageKeys.routine) || "[]");
+
+  refs.routineChecks.forEach((checkbox, index) => {
+    checkbox.checked = saved.includes(index);
+  });
+}
+
+function saveRoutineState() {
+  const checkedIndexes = [...refs.routineChecks]
+    .filter((checkbox) => checkbox.checked)
+    .map((checkbox) => Number(checkbox.dataset.index));
+
+  localStorage.setItem(storageKeys.routine, JSON.stringify(checkedIndexes));
+}
+
+function renderRoutineMinutes() {
+  const totalMinutes = [...refs.routineChecks].reduce((sum, checkbox) => {
+    return checkbox.checked ? sum + Number(checkbox.value) : sum;
+  }, 0);
+
+  refs.routineResult.textContent = `완료한 루틴: ${totalMinutes}분`;
 }
 
 function sortBooks(a, b) {

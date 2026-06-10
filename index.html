@@ -51,7 +51,12 @@
           <dt>이번 달 목표</dt>
           <dd id="monthGoalText">0 / 0권</dd>
         </div>
+        <div>
+          <dt>현재 시간</dt>
+          <dd id="liveClock">--:--:--</dd>
+        </div>
       </dl>
+      <p class="today-label" id="todayLabel">오늘 날짜를 불러오는 중입니다.</p>
     </section>
 
     <section class="dashboard" aria-label="독서 기록 관리">
@@ -145,10 +150,35 @@
         </div>
 
         <div class="book-list" id="bookList" aria-live="polite"></div>
+
+        <section class="library-table" aria-label="최근 독서기록 표">
+          <div class="table-title-row">
+            <div>
+              <p class="eyebrow">Recent Table</p>
+              <h3>최근 기록 표</h3>
+            </div>
+            <button class="ghost-btn" id="openTipDialog" type="button">독서 팁</button>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>번호</th>
+                  <th>책 제목</th>
+                  <th>저자</th>
+                  <th>상태</th>
+                  <th>평점</th>
+                </tr>
+              </thead>
+              <tbody id="sampleTableBody"></tbody>
+            </table>
+          </div>
+        </section>
       </section>
     </section>
 
-    <section class="insights" id="goals" aria-label="독서 목표와 메모">
+    <section class="insights" id="goals" aria-label="독서 목표와 현황">
       <article class="goal-panel">
         <div class="section-heading">
           <p class="eyebrow">Monthly Goal</p>
@@ -168,6 +198,20 @@
           <span id="goalBar"></span>
         </div>
         <p class="goal-copy" id="goalCopy">이번 달 목표를 설정해 보세요.</p>
+
+        <div class="calculator-box">
+          <h3>완독 예상일 계산</h3>
+          <form class="mini-form" id="pagePlanForm">
+            <label for="planPages">남은 페이지</label>
+            <input id="planPages" type="number" min="1" placeholder="180">
+
+            <label for="planPace">하루 독서량</label>
+            <input id="planPace" type="number" min="1" placeholder="30">
+
+            <button class="primary-btn" type="submit">계산하기</button>
+          </form>
+          <p class="result-text" id="planResult">남은 페이지와 하루 독서량을 입력하세요.</p>
+        </div>
       </article>
 
       <article class="note-panel">
@@ -194,8 +238,37 @@
             <strong id="averageRating">0.0점</strong>
           </li>
         </ul>
+
+        <div class="quote-area">
+          <h3>오늘의 독서 문장</h3>
+          <p class="quote-box" id="quoteBox">버튼을 누르면 독서 문장이 무작위로 표시됩니다.</p>
+          <button class="ghost-btn" id="randomQuoteBtn" type="button">문장 뽑기</button>
+        </div>
+
+        <div class="routine-area">
+          <h3>오늘의 독서 루틴</h3>
+          <div class="routine-list" id="routineList">
+            <label><input type="checkbox" value="10"> 읽을 책 고르기 10분</label>
+            <label><input type="checkbox" value="20"> 집중 독서 20분</label>
+            <label><input type="checkbox" value="5"> 인상 깊은 문장 표시 5분</label>
+            <label><input type="checkbox" value="10"> 독서 메모 정리 10분</label>
+          </div>
+          <p class="result-text" id="routineResult">완료한 루틴: 0분</p>
+          <button class="ghost-btn" id="routineResetBtn" type="button">체크 초기화</button>
+        </div>
+
+        <div class="chart-area">
+          <h3>상태별 책 수</h3>
+          <canvas id="statusCanvas" width="520" height="260">캔버스를 지원하지 않는 브라우저입니다.</canvas>
+        </div>
       </article>
     </section>
+
+    <dialog class="tip-dialog" id="tipDialog">
+      <h3>독서기록 팁</h3>
+      <p>완독한 날짜와 한 줄 메모를 같이 남기면 나중에 책을 다시 찾기 쉽습니다.</p>
+      <button class="primary-btn" id="closeTipDialog" type="button">닫기</button>
+    </dialog>
   </main>
 
   <footer class="footer">
