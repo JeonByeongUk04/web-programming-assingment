@@ -107,6 +107,11 @@ button {
   color: var(--green-dark);
 }
 
+.nav-links a.js-hover {
+  background: var(--green);
+  color: #fff;
+}
+
 .menu-toggle {
   display: none;
   width: 42px;
@@ -317,6 +322,29 @@ h3 {
   gap: 12px;
 }
 
+.goal-panel > label {
+  margin-bottom: -14px;
+}
+
+.event-message,
+.form-preview {
+  margin: 0 0 14px;
+  padding: 12px 14px;
+  border: 1px solid #e7cfc3;
+  border-radius: 8px;
+  background: #fff6f1;
+  color: #8b3f2d;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.form-preview {
+  margin: 2px 0 0;
+  border-color: #d8e4da;
+  background: #eef6ef;
+  color: var(--green-dark);
+}
+
 label,
 .search-field span,
 .sort-field span {
@@ -352,6 +380,17 @@ textarea:focus {
   box-shadow: 0 0 0 4px rgba(47, 111, 94, 0.13);
 }
 
+.focus-field {
+  border-color: var(--coral);
+  background: #fffaf5;
+  box-shadow: 0 0 0 4px rgba(216, 100, 74, 0.15);
+}
+
+.empty-field {
+  border-color: #c63d2f;
+  background: #fff5f3;
+}
+
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -381,6 +420,15 @@ textarea:focus {
 
 .primary-btn:hover {
   background: var(--coral);
+  transform: translateY(-2px);
+}
+
+.primary-btn.button-hover,
+.ghost-btn.button-hover,
+.tab-btn.button-hover {
+  border-color: var(--coral);
+  background: var(--coral);
+  color: #fff;
   transform: translateY(-2px);
 }
 
@@ -469,6 +517,17 @@ textarea:focus {
 .book-card:hover {
   border-color: var(--green);
   transform: translateY(-2px);
+}
+
+.book-card.event-hover {
+  border-color: var(--coral);
+  background: #fff6f1;
+  transform: translateY(-2px);
+}
+
+.book-card:focus {
+  outline: 3px solid rgba(216, 100, 74, 0.24);
+  outline-offset: 3px;
 }
 
 .book-title-row {
@@ -740,6 +799,10 @@ tbody tr:last-child td {
   .dashboard,
   .insights {
     grid-template-columns: 1fr;
+  }
+
+  .hero-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .entry-panel {

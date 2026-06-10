@@ -6,7 +6,7 @@
   <title>나의 독서기록</title>
   <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body onload="showEventMessage('onload: 페이지가 열리면 저장된 독서기록과 목표를 불러옵니다.')">
   <header class="site-header">
     <nav class="navbar" aria-label="주요 메뉴">
       <a class="brand" href="#overview" aria-label="나의 독서기록 처음으로 이동">
@@ -21,9 +21,9 @@
       </button>
 
       <ul class="nav-links" id="navLinks">
-        <li><a href="#record">기록하기</a></li>
-        <li><a href="#library">책장</a></li>
-        <li><a href="#goals">목표</a></li>
+        <li><a href="#record" onmouseover="navHover(this)" onmouseout="navOut(this)">기록하기</a></li>
+        <li><a href="#library" onmouseover="navHover(this)" onmouseout="navOut(this)">책장</a></li>
+        <li><a href="#goals" onmouseover="navHover(this)" onmouseout="navOut(this)">목표</a></li>
       </ul>
     </nav>
   </header>
@@ -66,17 +66,29 @@
           <h2>책 기록하기</h2>
         </div>
 
-        <form class="book-form" id="bookForm">
+        <p class="event-message" id="eventMessage">
+          입력칸을 클릭하면 onfocus, 벗어나면 onblur 이벤트가 표시됩니다.
+        </p>
+
+        <form class="book-form" id="bookForm" onsubmit="showEventMessage('onsubmit: 폼 제출 이벤트로 새 독서기록을 검사합니다.')">
           <label for="bookTitle">책 제목</label>
-          <input id="bookTitle" name="title" type="text" placeholder="예: 데미안" required>
+          <input id="bookTitle" name="title" type="text" placeholder="예: 데미안" required
+            onfocus="focusField(this, '책 제목 입력칸에 onfocus 이벤트가 발생했습니다.')"
+            onblur="blurField(this, '책 제목 입력칸에서 onblur 이벤트가 발생했습니다.')"
+            onkeyup="previewTitle(this.value)">
 
           <label for="bookAuthor">저자</label>
-          <input id="bookAuthor" name="author" type="text" placeholder="예: 헤르만 헤세" required>
+          <input id="bookAuthor" name="author" type="text" placeholder="예: 헤르만 헤세" required
+            onfocus="focusField(this, '저자 입력칸에 onfocus 이벤트가 발생했습니다.')"
+            onblur="blurField(this, '저자 입력칸에서 onblur 이벤트가 발생했습니다.')">
 
           <div class="form-row">
             <div>
               <label for="bookStatus">상태</label>
-              <select id="bookStatus" name="status">
+              <select id="bookStatus" name="status"
+                onfocus="focusField(this, '상태 선택 상자에 onfocus 이벤트가 발생했습니다.')"
+                onblur="blurField(this, '상태 선택 상자에서 onblur 이벤트가 발생했습니다.')"
+                onchange="statusChanged(this.value)">
                 <option value="reading">읽는 중</option>
                 <option value="finished">완독</option>
                 <option value="wishlist">읽고 싶음</option>
@@ -85,7 +97,10 @@
 
             <div>
               <label for="bookRating">평점</label>
-              <select id="bookRating" name="rating">
+              <select id="bookRating" name="rating"
+                onfocus="focusField(this, '평점 선택 상자에 onfocus 이벤트가 발생했습니다.')"
+                onblur="blurField(this, '평점 선택 상자에서 onblur 이벤트가 발생했습니다.')"
+                onchange="showEventMessage('onchange: 평점이 ' + this.value + '점으로 바뀌었습니다.')">
                 <option value="0">미정</option>
                 <option value="5">5점</option>
                 <option value="4">4점</option>
@@ -99,19 +114,33 @@
           <div class="form-row">
             <div>
               <label for="bookPages">페이지</label>
-              <input id="bookPages" name="pages" type="number" min="1" max="3000" placeholder="320">
+              <input id="bookPages" name="pages" type="number" min="1" max="3000" placeholder="320"
+                onfocus="focusField(this, '페이지 입력칸에 onfocus 이벤트가 발생했습니다.')"
+                onblur="blurField(this, '페이지 입력칸에서 onblur 이벤트가 발생했습니다.')"
+                oninput="showEventMessage('oninput: 페이지 수를 입력하는 중입니다.')">
             </div>
 
             <div>
               <label for="finishedDate">완독일</label>
-              <input id="finishedDate" name="finishedDate" type="date">
+              <input id="finishedDate" name="finishedDate" type="date"
+                onfocus="focusField(this, '날짜 입력칸에 onfocus 이벤트가 발생했습니다.')"
+                onblur="blurField(this, '날짜 입력칸에서 onblur 이벤트가 발생했습니다.')"
+                onchange="showEventMessage('onchange: 완독일이 선택되었습니다.')">
             </div>
           </div>
 
           <label for="bookMemo">메모</label>
-          <textarea id="bookMemo" name="memo" rows="4" placeholder="기억하고 싶은 문장, 느낀 점, 다음에 확인할 내용"></textarea>
+          <textarea id="bookMemo" name="memo" rows="4" placeholder="기억하고 싶은 문장, 느낀 점, 다음에 확인할 내용"
+            onfocus="focusField(this, '메모 입력칸에 onfocus 이벤트가 발생했습니다.')"
+            onblur="blurField(this, '메모 입력칸에서 onblur 이벤트가 발생했습니다.')"
+            onkeyup="showEventMessage('onkeyup: 메모를 입력하는 중입니다.')"></textarea>
 
-          <button class="primary-btn" type="submit">
+          <div class="form-preview" id="formPreview">입력 중인 책 제목이 여기에 표시됩니다.</div>
+
+          <button class="primary-btn" type="submit"
+            onmouseover="buttonHover(this)" onmouseout="buttonOut(this)"
+            onfocus="focusField(this, '추가 버튼에 onfocus 이벤트가 발생했습니다.')"
+            onblur="blurField(this, '추가 버튼에서 onblur 이벤트가 발생했습니다.')">
             <span aria-hidden="true">+</span>
             기록 추가
           </button>
@@ -128,12 +157,15 @@
           <div class="library-tools" aria-label="책장 도구">
             <label class="search-field" for="searchInput">
               <span>검색</span>
-              <input id="searchInput" type="search" placeholder="제목 또는 저자">
+              <input id="searchInput" type="search" placeholder="제목 또는 저자"
+                onfocus="focusField(this, '검색 입력칸에 onfocus 이벤트가 발생했습니다.')"
+                onblur="blurField(this, '검색 입력칸에서 onblur 이벤트가 발생했습니다.')"
+                onkeyup="showEventMessage('onkeyup: 검색어가 입력되어 책 목록을 다시 표시합니다.')">
             </label>
 
             <label class="sort-field" for="sortSelect">
               <span>정렬</span>
-              <select id="sortSelect">
+              <select id="sortSelect" onchange="showEventMessage('onchange: 정렬 기준이 변경되었습니다.')">
                 <option value="recent">최근 기록순</option>
                 <option value="rating">평점 높은순</option>
                 <option value="title">제목순</option>
@@ -143,10 +175,14 @@
         </div>
 
         <div class="status-tabs" role="tablist" aria-label="상태별 보기">
-          <button class="tab-btn active" type="button" data-filter="all">전체</button>
-          <button class="tab-btn" type="button" data-filter="reading">읽는 중</button>
-          <button class="tab-btn" type="button" data-filter="finished">완독</button>
-          <button class="tab-btn" type="button" data-filter="wishlist">읽고 싶음</button>
+          <button class="tab-btn active" type="button" data-filter="all"
+            onmouseover="buttonHover(this)" onmouseout="buttonOut(this)">전체</button>
+          <button class="tab-btn" type="button" data-filter="reading"
+            onmouseover="buttonHover(this)" onmouseout="buttonOut(this)">읽는 중</button>
+          <button class="tab-btn" type="button" data-filter="finished"
+            onmouseover="buttonHover(this)" onmouseout="buttonOut(this)">완독</button>
+          <button class="tab-btn" type="button" data-filter="wishlist"
+            onmouseover="buttonHover(this)" onmouseout="buttonOut(this)">읽고 싶음</button>
         </div>
 
         <div class="book-list" id="bookList" aria-live="polite"></div>
@@ -157,7 +193,8 @@
               <p class="eyebrow">Recent Table</p>
               <h3>최근 기록 표</h3>
             </div>
-            <button class="ghost-btn" id="openTipDialog" type="button">독서 팁</button>
+          <button class="ghost-btn" id="openTipDialog" type="button"
+            onclick="showEventMessage('onclick: 독서 팁 대화상자를 엽니다.')">독서 팁</button>
           </div>
 
           <div class="table-wrap">
@@ -186,12 +223,16 @@
         </div>
 
         <label for="ownerName">기록 이름</label>
-        <input id="ownerName" type="text" maxlength="20" placeholder="예: 민지의 독서노트">
+        <input id="ownerName" type="text" maxlength="20" placeholder="예: 민지의 독서노트"
+          onfocus="focusField(this, '기록 이름 입력칸에 onfocus 이벤트가 발생했습니다.')"
+          onblur="blurField(this, '기록 이름 입력칸에서 onblur 이벤트가 발생했습니다.')"
+          onkeyup="showEventMessage('onkeyup: 기록 이름을 입력하는 중입니다.')">
 
         <label for="goalInput">월간 완독 목표</label>
         <div class="goal-input-row">
           <input id="goalInput" type="number" min="1" max="30">
-          <button class="ghost-btn" id="saveGoalBtn" type="button">저장</button>
+          <button class="ghost-btn" id="saveGoalBtn" type="button"
+            onclick="showEventMessage('onclick: 월간 목표 저장 버튼을 눌렀습니다.')">저장</button>
         </div>
 
         <div class="goal-meter" aria-label="월간 목표 달성률">
@@ -203,12 +244,17 @@
           <h3>완독 예상일 계산</h3>
           <form class="mini-form" id="pagePlanForm">
             <label for="planPages">남은 페이지</label>
-            <input id="planPages" type="number" min="1" placeholder="180">
+            <input id="planPages" type="number" min="1" placeholder="180"
+              onfocus="focusField(this, '남은 페이지 입력칸에 onfocus 이벤트가 발생했습니다.')"
+              onblur="blurField(this, '남은 페이지 입력칸에서 onblur 이벤트가 발생했습니다.')">
 
             <label for="planPace">하루 독서량</label>
-            <input id="planPace" type="number" min="1" placeholder="30">
+            <input id="planPace" type="number" min="1" placeholder="30"
+              onfocus="focusField(this, '하루 독서량 입력칸에 onfocus 이벤트가 발생했습니다.')"
+              onblur="blurField(this, '하루 독서량 입력칸에서 onblur 이벤트가 발생했습니다.')">
 
-            <button class="primary-btn" type="submit">계산하기</button>
+            <button class="primary-btn" type="submit"
+              onmouseover="buttonHover(this)" onmouseout="buttonOut(this)">계산하기</button>
           </form>
           <p class="result-text" id="planResult">남은 페이지와 하루 독서량을 입력하세요.</p>
         </div>
@@ -242,19 +288,21 @@
         <div class="quote-area">
           <h3>오늘의 독서 문장</h3>
           <p class="quote-box" id="quoteBox">버튼을 누르면 독서 문장이 무작위로 표시됩니다.</p>
-          <button class="ghost-btn" id="randomQuoteBtn" type="button">문장 뽑기</button>
+          <button class="ghost-btn" id="randomQuoteBtn" type="button"
+            onclick="showEventMessage('onclick: 배열에서 무작위 문장을 뽑습니다.')">문장 뽑기</button>
         </div>
 
         <div class="routine-area">
           <h3>오늘의 독서 루틴</h3>
           <div class="routine-list" id="routineList">
-            <label><input type="checkbox" value="10"> 읽을 책 고르기 10분</label>
-            <label><input type="checkbox" value="20"> 집중 독서 20분</label>
-            <label><input type="checkbox" value="5"> 인상 깊은 문장 표시 5분</label>
-            <label><input type="checkbox" value="10"> 독서 메모 정리 10분</label>
+            <label><input type="checkbox" value="10" onchange="showEventMessage('onchange: 독서 루틴 체크 상태가 바뀌었습니다.')"> 읽을 책 고르기 10분</label>
+            <label><input type="checkbox" value="20" onchange="showEventMessage('onchange: 독서 루틴 체크 상태가 바뀌었습니다.')"> 집중 독서 20분</label>
+            <label><input type="checkbox" value="5" onchange="showEventMessage('onchange: 독서 루틴 체크 상태가 바뀌었습니다.')"> 인상 깊은 문장 표시 5분</label>
+            <label><input type="checkbox" value="10" onchange="showEventMessage('onchange: 독서 루틴 체크 상태가 바뀌었습니다.')"> 독서 메모 정리 10분</label>
           </div>
           <p class="result-text" id="routineResult">완료한 루틴: 0분</p>
-          <button class="ghost-btn" id="routineResetBtn" type="button">체크 초기화</button>
+          <button class="ghost-btn" id="routineResetBtn" type="button"
+            onclick="showEventMessage('onclick: 체크박스 상태를 모두 초기화합니다.')">체크 초기화</button>
         </div>
 
         <div class="chart-area">

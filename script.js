@@ -58,6 +58,8 @@ const seedBooks = [
 const refs = {
   menuToggle: document.querySelector("#menuToggle"),
   navLinks: document.querySelector("#navLinks"),
+  eventMessage: document.querySelector("#eventMessage"),
+  formPreview: document.querySelector("#formPreview"),
   form: document.querySelector("#bookForm"),
   bookList: document.querySelector("#bookList"),
   searchInput: document.querySelector("#searchInput"),
@@ -353,7 +355,11 @@ function createBookCard(book) {
   const actionLabel = book.status === "finished" ? "읽는 중으로" : "완독 처리";
 
   return `
-    <article class="book-card">
+    <article class="book-card" tabindex="0"
+      onmouseover="cardMouseOver(this)"
+      onmouseout="cardMouseOut(this)"
+      onfocus="cardMouseOver(this)"
+      onblur="cardMouseOut(this)">
       <div>
         <div class="book-title-row">
           <h3>${escapeHtml(book.title)}</h3>
@@ -373,6 +379,68 @@ function createBookCard(book) {
       </div>
     </article>
   `;
+}
+
+// 입력, 마우스, 클릭 이벤트를 설명하기 쉽게 분리한 교재식 이벤트 함수들입니다.
+function showEventMessage(message) {
+  if (!refs.eventMessage) {
+    return;
+  }
+
+  refs.eventMessage.textContent = message;
+}
+
+function focusField(element, message) {
+  element.classList.add("focus-field");
+  showEventMessage(message);
+}
+
+function blurField(element, message) {
+  element.classList.remove("focus-field");
+  element.classList.toggle("empty-field", element.hasAttribute("required") && !element.value.trim());
+  showEventMessage(message);
+}
+
+function previewTitle(value) {
+  const title = cleanText(value);
+  refs.formPreview.textContent = title
+    ? `미리보기: "${title}"을(를) 독서기록에 추가하는 중입니다.`
+    : "입력 중인 책 제목이 여기에 표시됩니다.";
+}
+
+function statusChanged(value) {
+  const label = statusLabels[value] || value;
+  showEventMessage(`onchange: 책 상태가 "${label}"(으)로 변경되었습니다.`);
+}
+
+function navHover(element) {
+  element.classList.add("js-hover");
+  showEventMessage("onmouseover: 메뉴 위에 마우스를 올려 색상을 바꿨습니다.");
+}
+
+function navOut(element) {
+  element.classList.remove("js-hover");
+  showEventMessage("onmouseout: 메뉴에서 마우스가 벗어나 원래 색상으로 돌아갑니다.");
+}
+
+function buttonHover(element) {
+  element.classList.add("button-hover");
+  showEventMessage("onmouseover: 버튼 배경색이 바뀌었습니다.");
+}
+
+function buttonOut(element) {
+  element.classList.remove("button-hover");
+  showEventMessage("onmouseout: 버튼 배경색을 원래대로 돌렸습니다.");
+}
+
+function cardMouseOver(element) {
+  element.classList.add("event-hover");
+  showEventMessage("onmouseover/onfocus: 책 카드의 테두리와 배경색을 변경했습니다.");
+}
+
+function cardMouseOut(element) {
+  element.classList.remove("event-hover");
+  showEventMessage("onmouseout/onblur: 책 카드의 스타일을 원래대로 돌렸습니다.");
 }
 
 function renderRecentTable() {
