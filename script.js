@@ -60,6 +60,9 @@ const refs = {
   navLinks: document.querySelector("#navLinks"),
   eventMessage: document.querySelector("#eventMessage"),
   formPreview: document.querySelector("#formPreview"),
+  loginId: document.querySelector("#loginId"),
+  loginPassword: document.querySelector("#loginPassword"),
+  loginMessage: document.querySelector("#loginMessage"),
   form: document.querySelector("#bookForm"),
   bookList: document.querySelector("#bookList"),
   searchInput: document.querySelector("#searchInput"),
@@ -411,6 +414,24 @@ function previewTitle(value) {
 function statusChanged(value) {
   const label = statusLabels[value] || value;
   showEventMessage(`onchange: 책 상태가 "${label}"(으)로 변경되었습니다.`);
+}
+
+function loginSubmit(event) {
+  event.preventDefault();
+
+  const userId = cleanText(refs.loginId.value);
+  const userPassword = cleanText(refs.loginPassword.value);
+
+  if (!userId || !userPassword) {
+    refs.loginMessage.textContent = "아이디와 비밀번호를 모두 입력하세요.";
+    showEventMessage("onsubmit: 로그인 폼에서 빈 입력값을 발견했습니다.");
+    return false;
+  }
+
+  refs.loginMessage.textContent = `${userId}님, 독서기록 페이지에 로그인한 상태입니다.`;
+  refs.loginPassword.value = "";
+  showEventMessage("onsubmit: 로그인 폼 제출 이벤트를 처리했습니다.");
+  return false;
 }
 
 function navHover(element) {
